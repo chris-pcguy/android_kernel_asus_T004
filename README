@@ -1,0 +1,35 @@
+
+Only tested on an A86/T004 A86_ER1/0x5 which has a literally broken touch interface, together with a matching pad.
+
+Caveat emptor!
+
+A Frankenstein's monster-like merge between "ASUS_A86-12.4.0.66-kernel-src.tar" and "https://github.com/LineageOS/android_kernel_cyanogen_msm8974/"
+
+"Joke of a ChangeLog":
+
+"CONFIG_ARM_ARCH_TIMER_VCT_ACCESS=y" to avoid "invalid instruction" error.
+original "/arch/arm/include/asm/elf.h" to avoid sigkill error.
+"/drivers/staging/android/lowmemorykiller.c" hasn't been merged, but replaced by the file in the GitHub repo. I may/might merge it sooner or later. (English is hard)
+Some ASUS drivers are using the new alarmtimer-interface now to avoid a kernel crash.
+Fix "no sound" by renaming some DeviceTree sections. (Thus syncing it with the merged kernel source)
+"Carefully" merged some DeviceTree parts. Also merged '"AIF4 VI", "MCLK",' a long time ago for a reason I don't know anymore.
+Workaround: Use the original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" files. (switching pad/phone)
+
+Caveats:
+There's a vague possibility that the kernel could crash or the displays could stop to respond if you replug the pad very rapidly. ("/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]")
+Prop "sys.usb.ffs.aio_compat=1" needs to be set to run adbd.
+LineageOS' build system is adding "ro.adb.secure=1" to a recovery image for some reason.
+
+Issues:
+The kernel might crash or the USB socket might stop working because of USB issues. e.g. with OTG, I could have sworn that OTG worked before.
+Switching pad/phone: The actual fix seemed to be the first two lines of the ChangeLog, but it's more on/off. It looks like a timing issue. (former changelog entry: parts of original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" to avoid errors while switching pad/phone)
+
+To do:
+Maybe I should restore "msm-compr-q6-v2.[ch]" and sync three lines from "https://github.com/LineageOS/android_kernel_motorola_msm8974/".
+Carefully merging DeviceTree sections.
+
+---
+
+Is there any official MSM8974 upstream where I could sync from?
+
+
