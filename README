@@ -1,5 +1,7 @@
 
-Only tested on an A86/T004 A86_ER1/0x5 which has a literally broken touch interface, together with a matching pad.
+Only tested on an A86/T004 A86_ER1/0x5 with a literally broken digitizer, together with a matching pad.
+
+WIP! There's not much working yet except for the recovery image and the kernel.
 
 Caveat emptor!
 
@@ -14,15 +16,17 @@ Some ASUS drivers are using the new alarmtimer-interface now to avoid a kernel c
 Fix "no sound" by renaming some DeviceTree sections. (Thus syncing it with the merged kernel source)
 "Carefully" merged some DeviceTree parts. Also merged '"AIF4 VI", "MCLK",' a long time ago for a reason I don't know anymore.
 Workaround: Use the original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" files. (switching pad/phone)
+kernel/printk: Show correct caller process.
 
 Caveats:
-There's a vague possibility that the kernel could crash or the displays could stop to respond if you replug the pad very rapidly. ("/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]")
+There's a vague possibility that the kernel could crash or the displays could stop to respond if you (re)plug the pad. Race condition?
 Prop "sys.usb.ffs.aio_compat=1" needs to be set to run adbd.
 LineageOS' build system is adding "ro.adb.secure=1" to a recovery image for some reason.
 
 Issues:
 The kernel might crash or the USB socket might stop working because of USB issues. e.g. with OTG, I could have sworn that OTG worked before.
-Switching pad/phone: The actual fix seemed to be the first two lines of the ChangeLog, but it's more on/off. It looks like a timing issue. (former changelog entry: parts of original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" to avoid errors while switching pad/phone)
+Switching pad/phone: The actual fix seemed to be the first two lines of the ChangeLog, but it's more on/off. It looks like a race condition. (former changelog entry: parts of original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" to avoid errors while switching pad/phone)
+Sound output via audio jack doesn't work.
 
 To do:
 Maybe I should restore "msm-compr-q6-v2.[ch]" and sync three lines from "https://github.com/LineageOS/android_kernel_motorola_msm8974/".

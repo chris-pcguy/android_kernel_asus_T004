@@ -889,58 +889,19 @@ module_param_named(time, printk_time, bool, S_IRUGO | S_IWUSR);
 
 static size_t print_time(u64 ts, char *buf)
 {
-    size_t tlen;
 	unsigned long rem_nsec;
-    int this_cpu;
 
 	if (!printk_time)
 		return 0;
 
 	if (!buf)
 		return 15;
-    
-    this_cpu = smp_processor_id();
 
-			//ASUSDEBUG + jeffery_hu@asus.com
-                if(asus_rtc_set && !suspend_in_progress)
-                {
-                    /* Add the current time stamp */
-                    struct timespec tss; 
-                    struct rtc_time tm;
-                    
-                    rem_nsec = do_div(ts, 1000000000);
-                    
-                    getnstimeofday(&tss);
-                    tss.tv_sec -= sys_tz.tz_minuteswest * 60;
-                    myrtc_time_to_tm(tss.tv_sec, &tm);
-                    //20100930 jack_wong to add asus_debug mechanism +++++
-                        tlen = sprintf(buf, "[%5lu.%06lu](CPU:%d-pid:%d:%s) [%02d:%02d:%02d.%06lu] ",
-								(unsigned long) ts,      
-								rem_nsec / 1000,                          
-                                this_cpu,
-                                current->pid, 
-                                current->comm,
-                                tm.tm_hour, tm.tm_min, tm.tm_sec,tss.tv_nsec/1000);     
-                         if (boot_after_60sec == 0 && ts >= 60)
-							boot_after_60sec = 1;
-                }
-                else
-                {
-                    rem_nsec = do_div(ts, 1000000000);
-                //20100930 jack_wong to add asus_debug mechanism +++++
-                        tlen = sprintf(buf, "[%5lu.%06lu](CPU:%d-pid:%d:%s) ",
-                                       (unsigned long) ts,
-                                        rem_nsec / 1000,
-                                        this_cpu,
-                                        current->pid, 
-                                        current->comm);                    
-                        if (boot_after_60sec == 0 && ts >= 60)
-							boot_after_60sec = 1;                
-                }    
-
-				//20100930 jack_wong to add asus_debug mechanism -----
-			//ASUSDEBUG - jeffery_hu@asus.com
-    return tlen;
+	rem_nsec = do_div(ts, 1000000000);
+	if (boot_after_60sec == 0 && ts >= 60)
+		boot_after_60sec = 1;
+	return sprintf(buf, "[%5lu.%06lu] ",
+		       (unsigned long)ts, rem_nsec / 1000);
 }
 
 static size_t print_prefix(const struct log *msg, bool syslog, char *buf)
@@ -1680,6 +1641,38 @@ asmlinkage int vprintk_emit(int facility, int level,
 
 	if (level == -1)
 		level = default_message_loglevel;
+
+	//ASUSDEBUG + jeffery_hu@asus.com
+	if (printk_time) {
+		int tlen;
+		char tbuf[128];
+		if(asus_rtc_set && !suspend_in_progress) {
+			/* Add the current time stamp */
+			struct timespec ts;
+			struct rtc_time tm;
+
+			getnstimeofday(&ts);
+			ts.tv_sec -= sys_tz.tz_minuteswest * 60;
+			myrtc_time_to_tm(ts.tv_sec, &tm);
+			//20100930 jack_wong to add asus_debug mechanism +++++
+			tlen = sprintf(tbuf, "(CPU:%d-pid:%d:%s) [%02d:%02d:%02d.%06lu] ",
+					this_cpu,
+					current->pid,
+					current->comm,
+					tm.tm_hour, tm.tm_min, tm.tm_sec,ts.tv_nsec/1000);
+		} else {
+			//20100930 jack_wong to add asus_debug mechanism +++++
+			tlen = sprintf(tbuf, "(CPU:%d-pid:%d:%s) ",
+					this_cpu,
+					current->pid,
+					current->comm);
+		}
+		//20100930 jack_wong to add asus_debug mechanism -----
+		memmove(text+tlen, text, text_len);
+		memcpy(text, tbuf, tlen);
+		text_len += tlen;
+	}
+	//ASUSDEBUG - jeffery_hu@asus.com
 
 	if (dict)
 		lflags |= LOG_PREFIX|LOG_NEWLINE;
