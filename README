@@ -1,5 +1,5 @@
 
-Only tested on an A86/T004 A86_ER1/0x5 with a literally broken digitizer, together with a matching pad.
+Only tested on an A86/T004 A86_ER1/0x5 with a literally broken digitizer, together with a T003P station.
 
 WIP! There's not much working yet except for the recovery image and the kernel.
 
@@ -17,16 +17,20 @@ Fix "no sound" by renaming some DeviceTree sections. (Thus syncing it with the m
 "Carefully" merged some DeviceTree parts. Also merged '"AIF4 VI", "MCLK",' a long time ago for a reason I don't know anymore.
 Workaround: Use the original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" files. (switching pad/phone)
 kernel/printk: Show correct caller process.
+Adding kernel config "CONFIG_ANDROID_BINDER_IPC_32BIT=n", "CONFIG_ENABLE_DEFAULT_TRACERS=y", "CONFIG_FUNCTION_TRACER=y", "CONFIG_SECCOMP=y" and replace "CONFIG_NF_NAT" with "CONFIG_NF_NAT_IPV[46]".
+Adding patch "lineageos_A86_vendor_boringssl_0.patch" for OpenGL_adreno libraries.
+Added manifest, overlays and various configs. I'm unsure if the values in them are even remotely correct.
 
 Caveats:
 There's a vague possibility that the kernel could crash or the displays could stop to respond if you (re)plug the pad. Race condition?
 Prop "sys.usb.ffs.aio_compat=1" needs to be set to run adbd.
-LineageOS' build system is adding "ro.adb.secure=1" to a recovery image for some reason.
+LineageOS' build system is adding "ro.adb.secure=1" to a (-userdebug) recovery image for some reason. Use "-eng" instead.
+Sound output via audio jack doesn't work with cmdline flag "dbg=y".
+If your USB (OTG) device won't work, just try to replug the OTG adapter at the phone's jack.
 
 Issues:
-The kernel might crash or the USB socket might stop working because of USB issues. e.g. with OTG, I could have sworn that OTG worked before.
+The kernel might crash or the USB socket might stop working because of USB issues. xhci issues, race condition? ("Timeout while waiting for address device command"?)
 Switching pad/phone: The actual fix seemed to be the first two lines of the ChangeLog, but it's more on/off. It looks like a race condition. (former changelog entry: parts of original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" to avoid errors while switching pad/phone)
-Sound output via audio jack doesn't work.
 
 To do:
 Maybe I should restore "msm-compr-q6-v2.[ch]" and sync three lines from "https://github.com/LineageOS/android_kernel_motorola_msm8974/".
@@ -35,5 +39,6 @@ Carefully merging DeviceTree sections.
 ---
 
 Is there any official MSM8974 upstream where I could sync from?
+Is there a way to enable audbg? The cmdline-flag, setprop-flag and providing 3.3V to the microphone pin doesn't seem to work.
 
 
