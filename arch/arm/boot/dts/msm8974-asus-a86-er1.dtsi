@@ -131,14 +131,15 @@
 		};
 	};
 
-	firmware: firmware {
+	//firmware {
+    firmware_dont_find_this { // external boot doesn't work with this for some reason
 		android {
 			compatible = "android,firmware";
 			fstab {
 				compatible = "android,fstab";
 				system {
 					compatible = "android,system";
-					dev = "/dev/block/platform/msm_sdcc.1/by-name/system";
+					dev = "/dev/block/platform/msm_sdcc.2/by-name/system";
 					type = "ext4";
 					mnt_flags = "ro,barrier=1,discard";
 					fsmgr_flags = "wait";
@@ -158,7 +159,7 @@
 
 		adsp_mem: adsp_region {
 			linux,contiguous-region;
-			reg = <0 0x3F00000>;
+			reg = <0 0x4100000>;
 			label = "adsp_mem";
 		};
 
@@ -2066,10 +2067,6 @@
 /*
 	qcom,msm-adsp-sensors {
 		compatible = "qcom,msm-adsp-sensors";
-		qcom,src-id = <11>;
-		qcom,dst-id = <604>;
-		qcom,ab = <32505856>;
-		qcom,ib = <32505856>;
 	};
 */
 //ASUS_BSP --- Alian_Shen "Disable adsp-sensors"

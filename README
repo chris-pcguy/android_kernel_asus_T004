@@ -17,9 +17,11 @@ Fix "no sound" by renaming some DeviceTree sections. (Thus syncing it with the m
 "Carefully" merged some DeviceTree parts. Also merged '"AIF4 VI", "MCLK",' a long time ago for a reason I don't know anymore.
 Workaround: Use the original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" files. (switching pad/phone)
 kernel/printk: Show correct caller process.
-Adding kernel config "CONFIG_ANDROID_BINDER_IPC_32BIT=n", "CONFIG_ENABLE_DEFAULT_TRACERS=y", "CONFIG_FUNCTION_TRACER=y", "CONFIG_SECCOMP=y" and replace "CONFIG_NF_NAT" with "CONFIG_NF_NAT_IPV[46]".
-Adding patch "lineageos_A86_vendor_boringssl_0.patch" for OpenGL_adreno libraries.
+Adding kernel config "CONFIG_ANDROID_BINDER_IPC_32BIT=n", "CONFIG_ENABLE_DEFAULT_TRACERS=y", "CONFIG_FUNCTION_TRACER=y", "CONFIG_SECCOMP=y", "CONFIG_PROC_DEVICETREE=y" and replace "CONFIG_NF_NAT" with "CONFIG_NF_NAT_IPV[46]".
+Adding patch "lineageos_A86_vendor_boringssl_1.patch" for OpenGL_adreno and DRM libraries.
 Added manifest, overlays and various configs. I'm unsure if the values in them are even remotely correct.
+Boot from MicroSD instead to avoid premature eMMC death. Might get reverted when this port is mature enough.
+Some firmware files from the modem partition are invalid, use those from the original system partition instead (e.g. adsp)
 
 Caveats:
 There's a vague possibility that the kernel could crash or the displays could stop to respond if you (re)plug the pad. Race condition?
@@ -33,8 +35,9 @@ The kernel might crash or the USB socket might stop working because of USB issue
 Switching pad/phone: The actual fix seemed to be the first two lines of the ChangeLog, but it's more on/off. It looks like a race condition. (former changelog entry: parts of original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" to avoid errors while switching pad/phone)
 
 To do:
-Maybe I should restore "msm-compr-q6-v2.[ch]" and sync three lines from "https://github.com/LineageOS/android_kernel_motorola_msm8974/".
 Carefully merging DeviceTree sections.
+Maybe merging the cpufreq_stats-patches from LineageOS/android_kernel_htc_msm8952?
+Merging it with 'LineageOS/android_kernel_fairphone_msm8974/'?
 
 ---
 
