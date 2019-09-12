@@ -22,6 +22,7 @@ Adding patch "lineageos_A86_vendor_boringssl_1.patch" for OpenGL_adreno and DRM 
 Added manifest, overlays and various configs. I'm unsure if the values in them are even remotely correct.
 Boot from MicroSD instead to avoid premature eMMC death. Might get reverted when this port is mature enough.
 Some firmware files from the modem partition are invalid, use those from the original system partition instead (e.g. adsp)
+WiFi "should" work now (untested), but Bluetooth, USB OTG, Camera, Radio and Pad probably won't.
 
 Caveats:
 There's a vague possibility that the kernel could crash or the displays could stop to respond if you (re)plug the pad. Race condition?
