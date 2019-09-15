@@ -1,11 +1,14 @@
 
 Only tested on an A86/T004 A86_ER1/0x5 with a literally broken digitizer, together with a T003P station.
 
-WIP! There's not much working yet except for the recovery image and the kernel.
+WIP! Caveat emptor!
 
-Caveat emptor!
+I make this port for two reason: 1.: Learning. 2.: To have digital sheet music for my keyboard, which I try to learn too.
 
-A Frankenstein's monster-like merge between "ASUS_A86-12.4.0.66-kernel-src.tar" and "https://github.com/LineageOS/android_kernel_cyanogen_msm8974/"
+A Frankenstein's monster-like merge between "ASUS_A86-12.4.0.66-kernel-src.tar" and mainly "https://github.com/LineageOS/android_kernel_cyanogen_msm8974/"
+
+Configured for external boot. Fastboot and MicroSD card with the exact same layout as the internal eMMC is needed.
+I only modify "/arch/arm/configs/a86*" kernel config files.
 
 "Joke of a ChangeLog":
 
@@ -20,20 +23,23 @@ kernel/printk: Show correct caller process.
 Adding kernel config "CONFIG_ANDROID_BINDER_IPC_32BIT=n", "CONFIG_ENABLE_DEFAULT_TRACERS=y", "CONFIG_FUNCTION_TRACER=y", "CONFIG_SECCOMP=y", "CONFIG_PROC_DEVICETREE=y" and replace "CONFIG_NF_NAT" with "CONFIG_NF_NAT_IPV[46]".
 Adding patch "lineageos_A86_vendor_boringssl_1.patch" for OpenGL_adreno and DRM libraries.
 Added manifest, overlays and various configs. I'm unsure if the values in them are even remotely correct.
-Boot from MicroSD instead to avoid premature eMMC death. Might get reverted when this port is mature enough.
+Boot from MicroSD instead to avoid premature eMMC death. Might get reverted when this port is mature enough. Fastboot is needed for this.
 Some firmware files from the modem partition are invalid, use those from the original system partition instead (e.g. adsp)
-WiFi "should" work now (untested), but Bluetooth, USB OTG, Camera, Radio and Pad probably won't.
+Updated wireless-regdb. (https://git.kernel.org/pub/scm/linux/kernel/git/sforshee/wireless-regdb.git/commit/?id=5dd4dbf709d38aab21cba0183cf26510054449f0)
+Fixed bug caused by ASUS (was also in the original kernel): asus_dwc3_proc_otg_boot_check_write returned 0 instead of count, thus making it hang forever, which didn't seemed to cause problems with the original firmware, but does so with LineageOS.
+WiFi works now, at least if configured manually, but Bluetooth, Camera, Radio doesn't. Pad display switching doesn't work, but the Pad's digitizer does. OTG works now, it were ASUS' fault.
 
 Caveats:
-There's a vague possibility that the kernel could crash or the displays could stop to respond if you (re)plug the pad. Race condition?
+With original firmware and new kernel: There's a vague possibility that the kernel could crash or the displays could stop to respond if you (re)plug the pad. Race condition?
 Prop "sys.usb.ffs.aio_compat=1" needs to be set to run adbd.
 LineageOS' build system is adding "ro.adb.secure=1" to a (-userdebug) recovery image for some reason. Use "-eng" instead.
 Sound output via audio jack doesn't work with cmdline flag "dbg=y".
-If your USB (OTG) device won't work, just try to replug the OTG adapter at the phone's jack.
+If your USB (OTG) device won't work, just try to replug the OTG adapter at the phone's jack and/or the plug at the adapter's jack.
 
 Issues:
 The kernel might crash or the USB socket might stop working because of USB issues. xhci issues, race condition? ("Timeout while waiting for address device command"?)
-Switching pad/phone: The actual fix seemed to be the first two lines of the ChangeLog, but it's more on/off. It looks like a race condition. (former changelog entry: parts of original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" to avoid errors while switching pad/phone)
+With original firmware and new kernel: Switching pad/phone: The actual fix seemed to be the first two lines of the ChangeLog, but it's more on/off. It looks like a race condition. (former changelog entry: parts of original "/drivers/video/msm/mdss/mdss_hdmi_tx.[ch]" to avoid errors while switching pad/phone)
+Handling of 'wlan/prima/wifi.nv' and 'wlan/prima/COUNTRY' seem to be part of a ASUS-specific closed-source part of the 'pronto_wlan.ko' kernel driver. I'll modify 'WCNSS_qcom_cfg.ini' in runtime with the data from '/factory/wifi.nv' and '/factory/COUNTRY' and put the according code in "init.program_bdaddr.sh" because "I can".
 
 To do:
 Carefully merging DeviceTree sections.

@@ -3372,7 +3372,7 @@ static ssize_t asus_dwc3_proc_otg_boot_check_write(struct file *file, const char
 size_t count, loff_t *ppos)
 {
 	queue_work(system_nrt_wq, &check_at_boot);
-	return 0;
+	return count;
 }
 
 const struct file_operations asus_dwc3_proc_otg_boot_check_fops = {
